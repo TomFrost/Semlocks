@@ -1,6 +1,6 @@
 {
   "name": "semlocks",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mind-blowingly simple local resource management",
   "main": "lib/Semlocks.js",
   "directories": {
@@ -27,6 +27,9 @@
   ],
   "author": "Tom Frost <tom@frosteddesign.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=0.10"
+  },
   "bugs": {
     "url": "https://github.com/TomFrost/Semlocks/issues"
   },
