@@ -1,0 +1,37 @@
+{
+  "name": "semlocks",
+  "version": "0.1.0",
+  "description": "Mind-blowingly simple local resource management",
+  "main": "lib/Semlocks.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha -R spec test"
+  },
+  "homepage": "https://github.com/TomFrost/Semlocks",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TomFrost/Semlocks.git"
+  },
+  "keywords": [
+    "semaphore",
+    "semaphores",
+    "resource",
+    "resources",
+    "management",
+    "lock",
+    "locks",
+    "locking",
+    "mutex"
+  ],
+  "author": "Tom Frost <tom@frosteddesign.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TomFrost/Semlocks/issues"
+  },
+  "devDependencies": {
+    "should": "~3.3.1",
+    "mocha": "~1.18.2"
+  }
+}
