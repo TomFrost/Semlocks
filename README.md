@@ -1,4 +1,4 @@
-# Semlocks
+# Semlocks [![Build Status](https://travis-ci.org/TomFrost/Semlocks.svg?branch=master)](https://travis-ci.org/TomFrost/Semlocks)
 Mind-blowingly simple local resource management
 
 Sponsored by [Leadnomics](http://www.leadnomics.com).
