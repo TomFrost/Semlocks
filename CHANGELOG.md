@@ -4,7 +4,8 @@ Mind-blowingly simple local resource management
 ##ChangeLog
 
 ### DEVELOPMENT HEAD
-- Fix support for earlier versions of Node.js without setImmediate.
+- Drop support for pre-0.10.0 version of node; process.nextTick is too
+unpredictable
 
 ### v0.1.0
 - **Initial Release**
