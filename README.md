@@ -33,14 +33,13 @@ locks.acquire(['hello', 'there'], function(err, releaseAll) {
 	setTimeout(releaseAll, 1000);
 });
 
-locks.acquire('there', function() {
+locks.acquire('hello', function() {
 	// Prints a second after 'Hello'
 	console.log('there,');
 });
 
-locks.acquire('hello', function() {
-	// Prints a second after 'Hello' and immediately after 'there'
-	// ('there' got in line first!)
+locks.acquire('there', function() {
+	// Prints a second after 'Hello' and immediately after 'there,'
 	console.log('World!');
 });
 ```
