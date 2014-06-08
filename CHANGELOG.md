@@ -12,7 +12,8 @@ semaphores to release a subset of the awarded locks.
 initial callback
 - Auto-releasing of semaphores if the callback does not contain a release
 argument has been removed; behavior is too unpredictable, and with the public
-release function that was added, may not be the preferred functionality. 
+release function that was added, may not be the preferred functionality.
+ - Cleaned up documentation in the README
 
 ### v0.1.1
 - Drop attempted (but already non-functioning) support for pre-0.10.0 version

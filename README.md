@@ -14,66 +14,71 @@ In your project folder, type:
 ```js
 var locks = require('semlocks');
 
-locks.acquire('hello', function(err, releaseAll) {
+locks.acquire('hello', function(err, release) {
 	console.log('Hello');
-	setTimeout(releaseAll, 1000);
+	setTimeout(release, 1000);
 });
 
-locks.acquire('hello', function() {
+locks.acquire('hello', function(err, release) {
 	// Prints a second after 'Hello'
 	console.log('World!');
+	release();
 });
 ```
 
 Locks can be acquired for one or many semaphores at once; just pass an array!
 
 ```js
-locks.acquire(['hello', 'there'], function(err, releaseAll) {
+locks.acquire(['hello', 'there'], function(err, release) {
 	console.log('Hello');
-	setTimeout(releaseAll, 1000);
+	setTimeout(release, 1000);
 });
 
-locks.acquire('hello', function() {
+locks.acquire('hello', function(err, release) {
 	// Prints a second after 'Hello'
 	console.log('there,');
+	release();
 });
 
-locks.acquire('there', function() {
+locks.acquire('there', function(err, release) {
 	// Prints a second after 'Hello' and immediately after 'there,'
 	console.log('World!');
+	release();
 });
 ```
 
 Release some locks earlier than others if you're finished with them:
 
 ```js
-locks.acquire(['hello', 'there'], function(err, releaseAll, release) {
+locks.acquire(['hello', 'there'], function(err, release) {
 	console.log('Hello');
 	setTimeout(function() { release('there'); }, 1000);
-	// Calling releaseAll() now is the same as release('hello')
-	setTimeout(releaseAll, 2000);
+	// Calling release() now is the same as release('hello')
+	setTimeout(release, 2000);
 });
 
-locks.acquire('there', function() {
+locks.acquire('there', function(err, release) {
 	// Prints a second after 'Hello'
 	console.log('there,');
+	release();
 });
 
-locks.acquire('hello', function() {
+locks.acquire('hello', function(err, release) {
 	// Prints two seconds after 'Hello'
 	console.log('World!');
+	release();
 });
 ```
 
 Specify when you can't wait for a lock:
 
 ```js
-locks.acquire('hello', function(err, releaseAll) {
+locks.acquire('hello', function(err, release) {
 	console.log('Hello');
-	setTimeout(releaseAll, 1000);
+	setTimeout(release, 1000);
 });
 
-locks.acquire('hello', {instant: true}, function(err) {
+locks.acquire('hello', {instant: true}, function(err, release) {
 	// Output: Could not acquire all locks instantly
 	console.log(err.message);
 });
@@ -82,7 +87,7 @@ locks.acquire('hello', {instant: true}, function(err) {
 Avoid deadlocks with wait limits and TTLs:
 
 ```js
-locks.acquire('hello', {wait: 1000, ttl: 2000}, function(err, releaseAll) {
+locks.acquire('hello', {wait: 1000, ttl: 2000}, function(err, release) {
 	// This will give us an 'err' if we waited more than 1 second and couldn't
 	// get a lock.
 
@@ -92,35 +97,45 @@ locks.acquire('hello', {wait: 1000, ttl: 2000}, function(err, releaseAll) {
 });
 ```
 
-Bask in convenience:
-
-```js
-locks.acquire('hello', function(err) {
-	// No 'releaseAll' argument in this callback?  'hello' will be released
-	// immediately once the function is complete.
-});
-```
-
 Allow semaphores to be held multiple times simultaneously:
 
 ```js
 locks.setMaxLocks('hello', 2);
-locks.acquire('hello', function(err, releaseAll) {
+locks.acquire('hello', function(err, release) {
 	console.log('Hello');
-	setTimeout(releaseAll, 1000);
+	setTimeout(release, 1000);
 });
 
-locks.acquire('hello', function(err, releaseAll) {
+locks.acquire('hello', function(err, release) {
 	// Prints immediately after 'Hello' with no wait. 'hello' is held twice!
 	console.log('World!');
-	setTimeout(releaseAll, 1000);
+	setTimeout(release, 1000);
+});
+```
+
+Jump in line with priorities:
+
+```js
+locks.acquire('hello', {priority: 2}, function(err, release) {
+	console.log('Hello');
+	locks.acquire('hello', {priority: 2}, function(err, release) {
+    	console.log('World!');
+    	release();
+    });
+    locks.acquire('hello', {priority: 1}, function(err, release) {
+    	// Prints between "Hello" and "World!". The priority 1 jumps ahead of
+    	// the priority 2 in line!
+    	console.log('there,');
+    	release();
+    });
+	release();
 });
 ```
 
 Cancel pending locks by grabbing the handle:
 
 ```js
-var handle = locks.acquire(['hello', 'world'], function(err) {
+var handle = locks.acquire(['hello', 'world'], function(err, release) {
 	console.log('This will never be seen.');
 });
 
@@ -148,27 +163,26 @@ semaphores to lock before executing the callback
 key/value pairs:
 	- **wait** *number:* The number of milliseconds to wait for a lock. If this
 time limit is reached and the locks have not all been obtained, the callback is
-executed with an error argument.
+executed with an error argument. *Default: unbounded*
 	- **instant** *boolean:* If true, the callback will be called with an error
-argument if the locks cannot be immediately obtained.
+argument if the locks cannot be immediately obtained. *Default: false*
 	- **ttl** *number:* The 'time-to-live': a number of milliseconds that a
 callback can take to release all its locks before they are forcibly released
 and a 'killed' event is fired.  Note that this does not halt the execution of
-the callback.
+the callback. *Default: unbounded*
+	- **priority** *number:* The priority of this request.  Locks are awarded
+in priority order, with lower values coming first and higher values coming only
+after lower values have been serviced.  Equal priorities are awarded in the
+order in which they were requested.  *Default: 2*
 - **callback** *function:* A callback to be executed when all the locks are
 obtained, or when the locks cannot be obtained due to the `wait` or `instant`
 options above.  The callback is called in the tick immediately after the
 acquisition of the last semaphore, with the following arguments:
 	- **err** *Error|null:* An error object, if locks could not be obtained due
 to the `wait` or `instant` options.
-	- **releaseAll** *function:* Releases all currently held locks for this
-request.  If this argument is specified in the callback signature, the locks
-MUST be manually released in order for them to be acquired by other requests.
-The only exception is if the `ttl` option is specified, but that should not be
-utilized for regular operation.
-	- **release(semaphore)** *function:* Releases the specified semaphore. This
-is useful if more than one semaphore was acquired, and the callback finishes
-with one before others.
+	- **release([semaphore])** *function:* Releases the specified semaphore or
+array of semaphores.  If no semaphore is provided, all semaphores belonging
+to this lock request are released.
 
 #### cancel(handle, [err])
 Forcibly releases any currently held locks for the specified handle, and
@@ -180,6 +194,13 @@ returned by the `acquire` function.
 - **[err]** *Error:* An error object. If specified, this will be passed to the
 callback function if it's not yet been executed.  Otherwise, the callback
 function will not be called.
+
+#### release(handle, [semaphore])
+Releases all or some of a request's currently held semaphores.
+- **handle** *number:* The handle of the request that owns the locks to be
+released.
+- **[semaphore]** *string|array:* A semaphore or array of semaphores to be
+released. If omitted, all semaphores owned by this handle will be released.
 
 #### setMaxLocks(semaphore, max)
 Sets the maximum number of times the specified semaphore can be simultaneously
