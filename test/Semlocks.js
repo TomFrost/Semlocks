@@ -39,7 +39,7 @@ describe("Semaphore", function() {
 			should.not.exist(err);
 			locks++;
 			locks.should.equal(1);
-			inst.acquire('foo', function(err) {
+			inst.acquire('foo', function(err, release) {
 				should.not.exist(err);
 				locks++;
 				locks.should.equal(2);
@@ -53,7 +53,7 @@ describe("Semaphore", function() {
 			setTimeout(function() {
 				release();
 				locks--;
-			});
+			}, 1);
 		});
 	});
 	it("should allow caps to be cleared", function(done) {
@@ -318,11 +318,12 @@ describe("Semaphore", function() {
 	});
 	it("should emit killed event when ttl expires", function(done) {
 		var killed = false;
-		var handle = inst.acquire('foo', {ttl: 5}, function(err) {
+		var handle = inst.acquire('foo', {ttl: 5}, function(err, release) {
 			should.not.exist(err);
 			killed.should.equal(false);
 			setTimeout(function() {
 				killed.should.equal(handle);
+				release();
 				done();
 			}, 10);
 		});
