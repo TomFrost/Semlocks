@@ -8,6 +8,11 @@ Mind-blowingly simple local resource management
 - Callbacks are now called with just one 'release' function that can be called
 without arguments to release all held semaphores, or with a semaphore/array of
 semaphores to release a subset of the awarded locks.
+- Added public release() call to support releasing semaphores from outside the
+initial callback
+- Auto-releasing of semaphores if the callback does not contain a release
+argument has been removed; behavior is too unpredictable, and with the public
+release function that was added, may not be the preferred functionality. 
 
 ### v0.1.1
 - Drop attempted (but already non-functioning) support for pre-0.10.0 version

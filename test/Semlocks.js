@@ -39,7 +39,7 @@ describe("Semaphore", function() {
 			should.not.exist(err);
 			locks++;
 			locks.should.equal(1);
-			inst.acquire('foo', function(err, release) {
+			inst.acquire('foo', function(err) {
 				should.not.exist(err);
 				locks++;
 				locks.should.equal(2);
@@ -74,31 +74,20 @@ describe("Semaphore", function() {
 			}, 5);
 		});
 	});
-	it("should auto-release sems with no callback args", function(done) {
-		var called = false;
-		inst.acquire('foo', function(err) {
-			should.not.exist(err);
-			called.should.equal(false);
-			called = true;
-		});
-		inst.acquire('foo', function(err) {
-			should.not.exist(err);
-			called.should.equal(true);
-			done();
-		});
-	});
 	it("should acquire arrays of sems", function(done) {
 		var foo = false,
 			bar = false;
 		inst.acquire(['foo', 'bar'], function(err, release) {
 			should.not.exist(err);
-			inst.acquire('foo', function(err) {
+			inst.acquire('foo', function(err, release) {
 				should.not.exist(err);
 				foo = true;
+				release();
 			});
-			inst.acquire('bar', function(err) {
+			inst.acquire('bar', function(err, release) {
 				should.not.exist(err);
 				bar = true;
+				release();
 			});
 			inst.acquire(['foo', 'bar'], function(err) {
 				should.not.exist(err);
@@ -305,10 +294,11 @@ describe("Semaphore", function() {
 			should.exist(handle);
 			if (sem == 'foo') releases++;
 		});
-		inst.acquire(['foo', 'bar'], function(err) {
+		inst.acquire(['foo', 'bar'], function(err, release) {
 			should.not.exist(err);
 			acquires.should.equal(2);
 			releases.should.equal(0);
+			release();
 		});
 		setTimeout(function() {
 			acquires.should.equal(2);
