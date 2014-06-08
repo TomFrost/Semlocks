@@ -273,6 +273,21 @@ describe("Semaphore", function() {
 			}, 5);
 		});
 	});
+	it("should allow sems to be released externally", function(done) {
+		var firstHit = false;
+		var firstHandle = inst.acquire('foo', function(err) {
+			should.not.exist(err);
+			firstHit.should.equal(false);
+			firstHit = true;
+		});
+		inst.acquire('foo', function(err, release) {
+			should.not.exist(err);
+			firstHit.should.equal(true);
+			release();
+			done();
+		});
+		setTimeout(inst.release.bind(inst, firstHandle, 'foo'), 10);
+	});
 	it("should emit acquire and release events appropriately", function(done) {
 		var acquires = 0,
 			releases = 0;
