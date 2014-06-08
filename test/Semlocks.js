@@ -14,7 +14,7 @@ describe("Semaphore", function() {
 	it("should only assign one lock at a time", function(done) {
 		var locked = false,
 			firstHit = false;
-		inst.acquire('test', function(err, releaseAll) {
+		inst.acquire('test', function(err, release) {
 			should.not.exist(err);
 			locked.should.equal(false);
 			locked = true;
@@ -27,7 +27,7 @@ describe("Semaphore", function() {
 				done();
 			});
 			setTimeout(function() {
-				releaseAll();
+				release();
 				locked = false;
 			}, 5);
 		});
@@ -35,11 +35,11 @@ describe("Semaphore", function() {
 	it("should allow sems to be capped higher than 1", function(done) {
 		var locks = 0;
 		inst.setMaxLocks('foo', 2);
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
 			locks++;
 			locks.should.equal(1);
-			inst.acquire('foo', function(err, releaseAll) {
+			inst.acquire('foo', function(err) {
 				should.not.exist(err);
 				locks++;
 				locks.should.equal(2);
@@ -51,7 +51,7 @@ describe("Semaphore", function() {
 				});
 			});
 			setTimeout(function() {
-				releaseAll();
+				release();
 				locks--;
 			});
 		});
@@ -59,7 +59,7 @@ describe("Semaphore", function() {
 	it("should allow caps to be cleared", function(done) {
 		var locked = false;
 		inst.setMaxLocks('foo', 2);
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
 			locked = true;
 			inst.setMaxLocks('foo', null);
@@ -70,7 +70,7 @@ describe("Semaphore", function() {
 			});
 			setTimeout(function() {
 				locked = false;
-				releaseAll();
+				release();
 			}, 5);
 		});
 	});
@@ -90,7 +90,7 @@ describe("Semaphore", function() {
 	it("should acquire arrays of sems", function(done) {
 		var foo = false,
 			bar = false;
-		inst.acquire(['foo', 'bar'], function(err, releaseAll) {
+		inst.acquire(['foo', 'bar'], function(err, release) {
 			should.not.exist(err);
 			inst.acquire('foo', function(err) {
 				should.not.exist(err);
@@ -106,7 +106,7 @@ describe("Semaphore", function() {
 				bar.should.equal(true);
 				done();
 			});
-			setTimeout(releaseAll, 5);
+			setTimeout(release, 5);
 		});
 	});
 	it("should allow sems to be acquired instantly only", function(done) {
@@ -117,11 +117,11 @@ describe("Semaphore", function() {
 	});
 	it("should send error when sems can't acquire instantly", function(done) {
 		var opts = {instant: true};
-		inst.acquire('foo', opts, function(err, releaseAll) {
+		inst.acquire('foo', opts, function(err, release) {
 			should.not.exist(err);
 			inst.acquire('foo', opts, function(err) {
 				should.exist(err);
-				releaseAll();
+				release();
 				done();
 			});
 		});
@@ -137,14 +137,14 @@ describe("Semaphore", function() {
 	});
 	it("should return a handle to cancel the request", function(done) {
 		var hit = false;
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
-			var handle = inst.acquire('foo', function(err) {
+			var handle = inst.acquire('foo', function() {
 				hit = true;
 			});
 			should.exist(handle);
 			inst.cancel(handle);
-			releaseAll();
+			release();
 			setTimeout(function() {
 				hit.should.equal(false);
 				done();
@@ -153,7 +153,7 @@ describe("Semaphore", function() {
 	});
 	it("should pass an error when canceling with an error", function(done) {
 		var hit = false;
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
 			var handle = inst.acquire('foo', function(err) {
 				should.exist(err);
@@ -162,7 +162,7 @@ describe("Semaphore", function() {
 			});
 			should.exist(handle);
 			inst.cancel(handle, new Error('bar'));
-			releaseAll();
+			release();
 			setTimeout(function() {
 				hit.should.equal(true);
 				done();
@@ -171,15 +171,15 @@ describe("Semaphore", function() {
 	});
 	it("should not pass a cancel error if cb was called", function(done) {
 		var hits = 0;
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
-			var handle = inst.acquire('foo', function(err, releaseAll) {
+			var handle = inst.acquire('foo', function(err, release) {
 				should.not.exist(err);
 				hits++;
-				setTimeout(releaseAll, 10);
+				setTimeout(release, 10);
 			});
 			should.exist(handle);
-			releaseAll();
+			release();
 			setTimeout(function() {
 				inst.cancel(handle, new Error('bar'));
 			}, 5);
@@ -189,12 +189,11 @@ describe("Semaphore", function() {
 			}, 15);
 		});
 	});
-	//it("should ")
 	it("should release all locks when canceling", function(done) {
 		var hit = false;
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
-			var handle = inst.acquire(['foo', 'bar'], function(err) {
+			var handle = inst.acquire(['foo', 'bar'], function() {
 				hit = true;
 			});
 			inst.acquire(['foo', 'bar'], function(err) {
@@ -203,18 +202,18 @@ describe("Semaphore", function() {
 				done();
 			});
 			inst.cancel(handle);
-			releaseAll();
+			release();
 		});
 	});
 	it("should work correctly with a high wait time", function(done) {
 		var hit = false;
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
 			inst.acquire('foo', {wait: 10}, function(err) {
 				should.not.exist(err);
 				hit = true;
 			});
-			setTimeout(releaseAll, 5);
+			setTimeout(release, 5);
 			setTimeout(function() {
 				hit.should.equal(true);
 				done();
@@ -223,7 +222,7 @@ describe("Semaphore", function() {
 	});
 	it("should fail when wait time is exceeded", function(done) {
 		var hit = false;
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
 			inst.acquire('foo', {wait: 5}, function(err) {
 				should.exist(err);
@@ -231,14 +230,14 @@ describe("Semaphore", function() {
 			});
 			setTimeout(function() {
 				hit.should.equal(true);
-				releaseAll();
+				release();
 				done();
 			}, 10);
 		});
 	});
 	it("should work correctly with a high ttl", function(done) {
 		var released = false;
-		inst.acquire('foo', {ttl: 1000}, function(err, releaseAll) {
+		inst.acquire('foo', {ttl: 1000}, function(err, release) {
 			should.not.exist(err);
 			inst.acquire('foo', function(err) {
 				should.not.exist(err);
@@ -247,13 +246,13 @@ describe("Semaphore", function() {
 			});
 			setTimeout(function() {
 				released = true;
-				releaseAll();
+				release();
 			}, 5);
 		});
 	});
 	it("should auto-release when ttl is reached", function(done) {
 		var hit = false;
-		inst.acquire('foo', {ttl: 5}, function(err, releaseAll) {
+		inst.acquire('foo', {ttl: 5}, function(err) {
 			should.not.exist(err);
 			inst.acquire('foo', function(err) {
 				should.not.exist(err);
@@ -268,13 +267,13 @@ describe("Semaphore", function() {
 	it("should allow sems to be released individually", function(done) {
 		var hitFoo = false,
 			hitBar = false;
-		inst.acquire(['foo', 'bar'], function(err, releaseAll, release) {
+		inst.acquire(['foo', 'bar'], function(err, release) {
 			should.not.exist(err);
 			inst.acquire('foo', function(err) {
 				should.not.exist(err);
 				hitFoo = true;
 			});
-			inst.acquire('bar', function(err) {
+			inst.acquire('bar', function() {
 				hitBar = true;
 			});
 			release('foo');
@@ -319,8 +318,9 @@ describe("Semaphore", function() {
 	});
 	it("should emit killed event when ttl expires", function(done) {
 		var killed = false;
-		var handle = inst.acquire('foo', {ttl: 5}, function(err, releaseAll) {
+		var handle = inst.acquire('foo', {ttl: 5}, function(err) {
 			should.not.exist(err);
+			killed.should.equal(false);
 			setTimeout(function() {
 				killed.should.equal(handle);
 				done();
@@ -332,34 +332,34 @@ describe("Semaphore", function() {
 	});
 	it("should award locks to earlier priorities first", function(done) {
 		var hits = 0;
-		inst.acquire('foo', function(err, releaseAll) {
+		inst.acquire('foo', function(err, release) {
 			should.not.exist(err);
-			inst.acquire('foo', {priority: 3}, function(err, releaseAll) {
+			inst.acquire('foo', {priority: 3}, function(err, release) {
 				should.not.exist(err);
 				hits.should.equal(3);
 				hits++;
-				releaseAll();
+				release();
 				done();
 			});
-			inst.acquire('foo', {priority: 2}, function(err, releaseAll) {
+			inst.acquire('foo', {priority: 2}, function(err, release) {
 				should.not.exist(err);
 				hits.should.equal(1);
 				hits++;
-				releaseAll();
+				release();
 			});
-			inst.acquire('foo', {priority: 1}, function(err, releaseAll) {
+			inst.acquire('foo', {priority: 1}, function(err, release) {
 				should.not.exist(err);
 				hits.should.equal(0);
 				hits++;
-				releaseAll();
+				release();
 			});
-			inst.acquire('foo', {priority: 2}, function(err, releaseAll) {
+			inst.acquire('foo', {priority: 2}, function(err, release) {
 				should.not.exist(err);
 				hits.should.equal(2);
 				hits++;
-				releaseAll();
+				release();
 			});
-			releaseAll();
+			release();
 		});
 	});
 });
