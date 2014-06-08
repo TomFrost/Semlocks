@@ -330,4 +330,36 @@ describe("Semaphore", function() {
 			killed = killHandle;
 		});
 	});
+	it("should award locks to earlier priorities first", function(done) {
+		var hits = 0;
+		inst.acquire('foo', function(err, releaseAll) {
+			should.not.exist(err);
+			inst.acquire('foo', {priority: 3}, function(err, releaseAll) {
+				should.not.exist(err);
+				hits.should.equal(3);
+				hits++;
+				releaseAll();
+				done();
+			});
+			inst.acquire('foo', {priority: 2}, function(err, releaseAll) {
+				should.not.exist(err);
+				hits.should.equal(1);
+				hits++;
+				releaseAll();
+			});
+			inst.acquire('foo', {priority: 1}, function(err, releaseAll) {
+				should.not.exist(err);
+				hits.should.equal(0);
+				hits++;
+				releaseAll();
+			});
+			inst.acquire('foo', {priority: 2}, function(err, releaseAll) {
+				should.not.exist(err);
+				hits.should.equal(2);
+				hits++;
+				releaseAll();
+			});
+			releaseAll();
+		});
+	});
 });
