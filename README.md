@@ -116,7 +116,7 @@ locks.acquire('hello', function(err, release) {
 Jump in line with priorities:
 
 ```js
-locks.acquire('hello', {priority: 2}, function(err, release) {
+locks.acquire('hello', function(err, release) {
 	console.log('Hello');
 	locks.acquire('hello', {priority: 2}, function(err, release) {
     	console.log('World!');
@@ -140,6 +140,18 @@ var handle = locks.acquire(['hello', 'world'], function(err, release) {
 });
 
 locks.cancel(handle);
+```
+
+You can use the handle to release locks, too:
+
+```js
+var handle = locks.acquire('hello', function(err) {
+    // Do something
+});
+
+setTimeout(function() {
+	locks.release(handle);
+}, 1000);
 ```
 
 ### New Instances
