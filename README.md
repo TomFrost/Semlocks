@@ -168,7 +168,10 @@ var moreLocks = new Semlocks();
 #### acquire(semaphore, [options], callback)
 Requests the provided semaphore(s) and calls the callback when they're all
 locked.  **Returns** a numeric handle for this request, which can be used to
-cancel it before the locks are obtained.
+cancel it before the locks are obtained.  **Note** that the callback is called
+in the tick immediately following the tick in which the last semaphore was
+locked, in order to ensure the handle is returned and available when the
+callback executes.
 - **semaphore** *string|array:* A string or array of strings indicating which
 semaphores to lock before executing the callback
 - **[options]** *object:* Optionally, an object specifying any of the following
