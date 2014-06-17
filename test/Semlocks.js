@@ -397,4 +397,9 @@ describe("Semaphore", function() {
 			});
 		});
 	});
+	it("should wrap handle IDs to 0 when the limit is reached", function() {
+		inst._curId = semlocks.HANDLE_LIMIT;
+		var handle = inst.acquire('foo');
+		handle.should.equal(0);
+	});
 });
