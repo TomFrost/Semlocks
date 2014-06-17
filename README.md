@@ -189,7 +189,7 @@ the callback. *Default: unbounded*
 in priority order, with lower values coming first and higher values coming only
 after lower values have been serviced.  Equal priorities are awarded in the
 order in which they were requested.  *Default: 2*
-- **callback** *function:* A callback to be executed when all the locks are
+- **[callback]** *function:* A callback to be executed when all the locks are
 obtained, or when the locks cannot be obtained due to the `wait` or `instant`
 options above.  The callback is called in the tick immediately after the
 acquisition of the last semaphore, with the following arguments:

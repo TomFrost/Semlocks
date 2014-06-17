@@ -5,7 +5,8 @@ Mind-blowingly simple local resource management
 
 ### Development Head
 - Added public getMaxLocks function to retrieve the current cap for a semaphore
-- Added support for capping a semaphore at 0 to stop it from being acquired.
+- Added support for capping a semaphore at 0 to stop it from being acquired
+- Locks can now be acquired without defining a callback function
 
 ### v1.0.0
 - Add priority option to allow semaphore requests to jump in line

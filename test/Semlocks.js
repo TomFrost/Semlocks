@@ -380,4 +380,21 @@ describe("Semaphore", function() {
 			release();
 		});
 	});
+	it("should allow locks to be acquired without a callback", function(done) {
+		var handle = inst.acquire('foo'),
+			called = false;
+		inst.acquire('foo', function(err, release) {
+			should.not.exist(err);
+			called = true;
+			release();
+		});
+		setImmediate(function() {
+			called.should.equal(false);
+			inst.release(handle);
+			setImmediate(function() {
+				called.should.equal(true);
+				done();
+			});
+		});
+	});
 });
