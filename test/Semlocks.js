@@ -74,6 +74,18 @@ describe("Semaphore", function() {
 			}, 5);
 		});
 	});
+	it("should allow caps to be set at 0", function(done) {
+		inst.setMaxLocks('foo', 0);
+		inst.acquire('foo', {instant: true}, function(err) {
+			should.exist(err);
+			done();
+		});
+	});
+	it("should allow the cap to be retrieved", function() {
+		inst.setMaxLocks('foo', 5);
+		inst.getMaxLocks('foo').should.equal(5);
+		inst.getMaxLocks('bar').should.equal(1);
+	});
 	it("should acquire arrays of sems", function(done) {
 		var foo = false,
 			bar = false;

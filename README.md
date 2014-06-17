@@ -210,6 +210,11 @@ returned by the `acquire` function.
 callback function if it's not yet been executed.  Otherwise, the callback
 function will not be called.
 
+#### getMaxLocks(semaphore)
+Gets the currently set max locks for a given semaphore.
+- **semaphore** *string:* A string representing the semaphore whose max should
+be retrieved.
+
 #### release(handle, [semaphore])
 Releases all or some of a request's currently held semaphores.
 - **handle** *number:* The handle of the request that owns the locks to be
@@ -219,7 +224,8 @@ released. If omitted, all semaphores owned by this handle will be released.
 
 #### setMaxLocks(semaphore, max)
 Sets the maximum number of times the specified semaphore can be simultaneously
-locked. By default, all semaphores are exclusive (max 1).
+locked. By default, all semaphores are exclusive (max of 1).  Note that 0 can
+be used to prevent a semaphore from being acquired until the max is changed.
 - **semaphore** *string:* A string representing the semaphore whose max should
 be changed.
 - **max** *number|null:* The number of simultaneous locks for this semaphore.
