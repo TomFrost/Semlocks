@@ -4,6 +4,7 @@ Mind-blowingly simple local resource management
 ##ChangeLog
 
 ### Development Head
+- Added forceRelease to release locks without knowing the handle
 - Added public getMaxLocks function to retrieve the current cap for a semaphore
 - Added support for capping a semaphore at 0 to stop it from being acquired
 - Locks can now be acquired without defining a callback function

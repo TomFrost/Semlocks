@@ -210,6 +210,15 @@ returned by the `acquire` function.
 callback function if it's not yet been executed.  Otherwise, the callback
 function will not be called.
 
+#### forceRelease(semaphore)
+Forcibly releases all locks for the given semaphore by cycling through all
+handles currently holding a lock and calling **release()** for each.  Note
+that, at the end of the call, the lock may be held by other requests that were
+waiting for this semaphore.  To prevent the lock from being held again, call 
+**setMaxLocks()** to set the available locks to 0 first.
+- **semaphore** *string:* A string representing the semaphore to be forcibly
+released.
+
 #### getMaxLocks(semaphore)
 Gets the currently set max locks for a given semaphore.
 - **semaphore** *string:* A string representing the semaphore whose max should

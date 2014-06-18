@@ -402,4 +402,22 @@ describe("Semaphore", function() {
 		var handle = inst.acquire('foo');
 		handle.should.equal(0);
 	});
+	it("should forcibly release all held locks", function(done) {
+		var locks = 0;
+		inst.setMaxLocks('foo', 2);
+		for (var i = 0; i < 5; i++)
+			inst.acquire('foo', function() { locks++; });
+		setImmediate(function() {
+			locks.should.equal(2);
+			inst.forceRelease('foo');
+			setImmediate(function() {
+				locks.should.equal(4);
+				inst.forceRelease('foo');
+				setImmediate(function() {
+					locks.should.equal(5);
+					done();
+				});
+			});
+		});
+	});
 });
