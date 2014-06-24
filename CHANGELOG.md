@@ -3,7 +3,7 @@ Mind-blowingly simple local resource management
 
 ##ChangeLog
 
-### Development HEAD
+### v1.1.1
 - Calling setMaxLocks will now grant locks to queued requests for that
 semaphore.
 
