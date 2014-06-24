@@ -420,4 +420,18 @@ describe("Semaphore", function() {
 			});
 		});
 	});
+	it("should grant locks immediately upon raising max", function(done) {
+		var locks = 0;
+		inst.setMaxLocks('foo', 0);
+		for (var i = 0; i < 3; i++)
+			inst.acquire('foo', function() { locks++; });
+		setImmediate(function() {
+			locks.should.equal(0);
+			inst.setMaxLocks('foo', 2);
+			setImmediate(function() {
+				locks.should.equal(2);
+				done();
+			});
+		});
+	});
 });

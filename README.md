@@ -235,6 +235,8 @@ released. If omitted, all semaphores owned by this handle will be released.
 Sets the maximum number of times the specified semaphore can be simultaneously
 locked. By default, all semaphores are exclusive (max of 1).  Note that 0 can
 be used to prevent a semaphore from being acquired until the max is changed.
+Raising the maximum will automatically trigger locks to be granted to the
+appropriate number of queued requests for this semaphore.
 - **semaphore** *string:* A string representing the semaphore whose max should
 be changed.
 - **max** *number|null:* The number of simultaneous locks for this semaphore.

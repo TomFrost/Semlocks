@@ -3,6 +3,10 @@ Mind-blowingly simple local resource management
 
 ##ChangeLog
 
+### Development HEAD
+- Calling setMaxLocks will now grant locks to queued requests for that
+semaphore.
+
 ### v1.1.0
 - Added forceRelease to release locks without knowing the handle
 - Added public getMaxLocks function to retrieve the current cap for a semaphore
