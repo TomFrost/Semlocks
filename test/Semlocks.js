@@ -434,4 +434,23 @@ describe("Semaphore", function() {
 			});
 		});
 	});
+	it("should report currently held locks", function(done) {
+		inst.setMaxLocks('foo', 0);
+		inst.setMaxLocks('baz', 2);
+		inst.acquire('foo');
+		inst.acquire(['bar', 'baz']);
+		inst.acquire('baz');
+		inst.acquire('tek', function(err, release) {
+			should.not.exist(err);
+			release();
+			setImmediate(function() {
+				var report = inst.getLocks();
+				report.should.eql({
+					bar: 1,
+					baz: 2
+				});
+				done();
+			});
+		});
+	});
 });

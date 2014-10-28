@@ -3,6 +3,10 @@ Mind-blowingly simple local resource management
 
 ##ChangeLog
 
+### Development HEAD
+- Added 'getLocks' call to retrieve a list of all active semaphores and a count
+of the current number of locks on each.
+
 ### v1.1.1
 - Calling setMaxLocks will now grant locks to queued requests for that
 semaphore.

@@ -219,6 +219,11 @@ waiting for this semaphore.  To prevent the lock from being held again, call
 - **semaphore** *string:* A string representing the semaphore to be forcibly
 released.
 
+#### getLocks()
+Gets a object mapping of all currently held semaphore names to the number of
+currently held locks on that semaphore.  Note that this object is a snapshot
+only, and will not auto-update as more locks are acquired and released.
+
 #### getMaxLocks(semaphore)
 Gets the currently set max locks for a given semaphore.
 - **semaphore** *string:* A string representing the semaphore whose max should
