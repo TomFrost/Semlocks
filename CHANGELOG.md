@@ -3,7 +3,7 @@ Mind-blowingly simple local resource management
 
 ##ChangeLog
 
-### Development HEAD
+### v1.2.0
 - Added 'getLocks' call to retrieve a list of all active semaphores and a count
 of the current number of locks on each.
 
