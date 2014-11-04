@@ -1,7 +1,11 @@
 # Semlocks
 Mind-blowingly simple local resource management
 
-##ChangeLog
+## ChangeLog
+
+### Development HEAD
+- Added ability to set default caps, so that new semaphores can be blocked
+entirely or globally allowed to be granted more than once simultaneously.
 
 ### v1.2.0
 - Added 'getLocks' call to retrieve a list of all active semaphores and a count

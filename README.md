@@ -224,8 +224,9 @@ Gets a object mapping of all currently held semaphore names to the number of
 currently held locks on that semaphore.  Note that this object is a snapshot
 only, and will not auto-update as more locks are acquired and released.
 
-#### getMaxLocks(semaphore)
-Gets the currently set max locks for a given semaphore.
+#### getMaxLocks([semaphore])
+Gets the currently set max locks for a given semaphore.  If semaphore is
+omitted, the default max locks will be returned.
 - **semaphore** *string:* A string representing the semaphore whose max should
 be retrieved.
 
@@ -236,6 +237,14 @@ released.
 - **[semaphore]** *string|array:* A semaphore or array of semaphores to be
 released. If omitted, all semaphores owned by this handle will be released.
 
+#### setDefaultMaxLocks(max)
+Sets the maximum number of times that semaphores without an explicitly defined
+max (see `setMaxLocks` below) can be simultaneously locked.  By default, all
+semaphores are exclusive (max of 1).  Note that 0 can be used to prevent any
+locks without explicit maximums from being granted.
+- **max** *number|null:* The number of simultaneous locks to allow on all
+semaphores by default.  If null, the max will revert to 1.
+
 #### setMaxLocks(semaphore, max)
 Sets the maximum number of times the specified semaphore can be simultaneously
 locked. By default, all semaphores are exclusive (max of 1).  Note that 0 can
@@ -245,7 +254,8 @@ appropriate number of queued requests for this semaphore.
 - **semaphore** *string:* A string representing the semaphore whose max should
 be changed.
 - **max** *number|null:* The number of simultaneous locks for this semaphore.
-If null or <1, the max will revert to its default of 1.
+If null, the max will revert to following the default setting (see
+`setDefaultMaxLocks` above).
 
 ### Events
 Semlocks is an EventEmitter that fires the following events:

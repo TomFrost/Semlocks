@@ -453,4 +453,67 @@ describe("Semaphore", function() {
 			});
 		});
 	});
+	it("should allow the default max locks to be changed", function(done) {
+		inst.setDefaultMaxLocks(2);
+		var locks = 0;
+		for (var i = 0; i < 3; i++)
+			inst.acquire('foo', function() { locks++; });
+		setImmediate(function() {
+			locks.should.eql(2);
+			done();
+		});
+	});
+	it("should restore default max of 1 when passing null", function(done) {
+		inst.setDefaultMaxLocks(5);
+		inst.setDefaultMaxLocks(null);
+		var locks = 0;
+		for (var i = 0; i < 3; i++)
+			inst.acquire('foo', function() { locks++; });
+		setImmediate(function() {
+			locks.should.eql(1);
+			done();
+		});
+	});
+	it("should grant locks upon raising default max", function(done) {
+		var locks = 0;
+		for (var i = 0; i < 3; i++)
+			inst.acquire('foo', function() { locks++; });
+		setImmediate(function() {
+			locks.should.eql(1);
+			inst.setDefaultMaxLocks(2);
+			setImmediate(function() {
+				locks.should.eql(2);
+				done();
+			});
+		});
+	});
+	it("should not allow default caps to affect sem caps", function(done) {
+		var locks = [];
+		inst.setDefaultMaxLocks(0);
+		inst.setMaxLocks('foo', 1);
+		inst.acquire('foo', function() { locks.push('foo'); });
+		inst.acquire('bar', function() { locks.push('bar');	});
+		setImmediate(function() {
+			locks.should.eql(['foo']);
+			done();
+		});
+	});
+	it("should switch sem out of default cap when cap is set", function(done) {
+		var locks = 0;
+		inst.setDefaultMaxLocks(0);
+		inst.acquire('foo', function() { locks++; });
+		setImmediate(function() {
+			locks.should.eql(0);
+			inst.setMaxLocks('foo', 1);
+			setImmediate(function() {
+				locks.should.eql(1);
+				done();
+			});
+		});
+	});
+	it("should return the default max locks in getMaxLocks()", function() {
+		inst.getMaxLocks().should.eql(1);
+		inst.setDefaultMaxLocks(5);
+		inst.getMaxLocks().should.eql(5);
+	});
 });
