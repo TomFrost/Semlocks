@@ -3,7 +3,7 @@ Mind-blowingly simple local resource management
 
 ## ChangeLog
 
-### Development HEAD
+### v1.3.0
 - Added ability to set default caps, so that new semaphores can be blocked
 entirely or globally allowed to be granted more than once simultaneously.
 
